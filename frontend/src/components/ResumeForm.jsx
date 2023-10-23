@@ -1,8 +1,7 @@
-// src/components/ResumeForm.js
-
 import React, { useState } from 'react';
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
+import axios from 'axios'; // Import Axios
 
 const ResumeForm = () => {
   const [formData, setFormData] = useState({
@@ -21,9 +20,30 @@ const ResumeForm = () => {
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Send the form data to the backend here
+
+    try {
+      // Send the form data to the backend to generate the PDF
+      const response = await axios.post('/generate-pdf', formData, {
+        responseType: 'blob', // Receive the response as a blob (binary)
+      });
+
+      // Create a blob URL for the PDF to display it
+      const blob = new Blob([response.data], { type: 'application/pdf' });
+      const url = window.URL.createObjectURL(blob);
+
+      // Create a link to display the PDF for preview
+      const link = document.createElement('a');
+      link.href = url;
+      link.target = '_blank';
+      link.download = 'resume.pdf';
+
+      // Simulate a click to open the PDF for preview
+      link.click();
+    } catch (error) {
+      console.error('Error generating PDF:', error);
+    }
   };
 
   return (
